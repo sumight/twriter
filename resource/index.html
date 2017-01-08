@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>文档</title>
+        <link rel="stylesheet" href="/style.css">
+    </head>
+    <body>
+        <div id="app" class="page">
+            <div class="page__left">
+                <div class="banner">
+                    <div class="banenr__text">
+                        SAILFISH
+                    </div>
+                </div>
+                <!-- <div class="menu">
+                    <div class="menu__item">
+                        <a href="javascript:;" class="menu__text menu__text--unclick">目录1</a>
+                        <div class="menu">
+                            <div class="menu__item">
+                                <a href="#" class="menu__text">目录1</a>
+                            </div>
+                            <div class="menu__group">group1</div>
+                            <div class="menu__item">
+                                <a href="#" class="menu__text">目录1</a>
+                            </div>
+                            <div class="menu__item">
+                                <a href="#" class="menu__text">目录1</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu__item">
+                        <a href="#" class="menu__text">目录1</a>
+                    </div>
+                    <div class="menu__item">
+                        <a href="#" class="menu__text">目录1</a>
+                    </div>
+                </div> -->
+
+                <div class="menu">
+                    <div class="menu__item" v-for="item in menu">
+                        <a href="javascript:;" class="menu__text" v-if="item.href==='javascript:;'">{{item.title}}</a>
+                        <router-link v-else :to="item.href" class="menu__text">{{item.title}}</router-link>
+                        <div class="menu">
+                            <div class="menu__item" v-for="item in item.menu">
+                                <a href="javascript:;" class="menu__text" v-if="item.href==='javascript:;'">{{item.title}}</a>
+                                <router-link v-else :to="item.href" class="menu__text">{{item.title}}</router-link>
+                                <div class="menu">
+                                    <div class="menu__item" v-for="item in item.menu">
+                                        <a href="javascript:;" class="menu__text" v-if="item.href==='javascript:;'">{{item.title}}</a>
+                                        <router-link v-else :to="item.href" class="menu__text">{{item.title}}</router-link>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="page__main">
+                <router-view></router-view>
+            </div>
+        </div>
+        <script src="/vue.js" charset="utf-8"></script>
+        <script src="/vue-router.js" charset="utf-8"></script>
+        <script src="/pages.js" charset="utf-8"></script>
+        <script src="/routes.js" charset="utf-8"></script>
+        <script src="/menu.js" charset="utf-8"></script>
+        <script type="text/javascript">
+            // vue router
+            const router = new VueRouter({
+                routes, // （缩写）相当于 routes: routes
+                mode: 'history'
+            })
+            const app = new Vue({
+                router,
+                data: {
+                    menu
+                }
+            }).$mount('#app')
+        </script>
+    </body>
+</html>
