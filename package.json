@@ -1,0 +1,46 @@
+{
+  "name": "twriter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "twriter": "cli.js"
+  },
+  "scripts": {
+    "serve": "static --root ./base --notfound index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sumight/twriter.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sumight/twriter/issues"
+  },
+  "homepage": "https://github.com/sumight/twriter#readme",
+  "dependencies": {
+    "extend": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-footer": "^1.0.5",
+    "gulp-header": "^1.8.8",
+    "gulp-tap": "^0.1.3",
+    "gulp-watch": "^4.3.11",
+    "lodash": "^4.17.4",
+    "marked": "^0.3.6",
+    "ramda": "^0.23.0",
+    "vinyl-named": "^1.1.0",
+    "vue": "^2.1.8",
+    "vue-router": "^2.1.1",
+    "ystatic": "^0.3.0"
+  },
+  "devDependencies": {
+    "cz-conventional-changelog": "^1.2.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
