@@ -10,114 +10,132 @@ const exec = require('child_process').exec;
 const argv = require('yargs').argv;
 const path = require('path');
 const watch = require('gulp-watch');
+const fs = require('fs');
+const ejs = require("gulp-ejs")
 
-var renderer = new marked.Renderer();
-
-const codeRender = renderer.code;
-
-renderer.code = function (code, lang) {
-    // 加入 vue-example
-    if(/^:::example-vue/.test(code)) {
-        var title = code.replace(/^:::example-vue (\S*) (.*)(.|\n)*/, '$1');
-        var desc = code.replace(/^:::example-vue (\S*) (.*)(.|\n)*/, '$2');
-        desc = marked(desc);
-        desc = encodeURI(desc);
-        code = code.replace(/^:::example-vue(.*)\n/, '');
-        var rawCode = code;
-        rawCode = encodeURI(rawCode);
-        code = codeRender.call(this, code, 'html');
-        code = code.replace(/^<pre>/, '<pre v-pre>');
-        code = `<tw-example code="${rawCode}" title="${title}" desc="${desc}">${code}</tw-example>`
-        return code;
-    }
-    code = codeRender.call(this, code, lang);
-    code = code.replace(/^<pre>/, '<pre v-pre>');
-    return code;
-}
-
-marked.setOptions({
-  highlight: function (code) {
-      code = require('highlight.js').highlightAuto(code).value;
-      code = code.replace(/'/g, '\\\'');
-      return code;
-  },
-  renderer: renderer
-});
-
-var toCamelCase = R.replace(/(-(\w|[\u4e00-\u9fa5]))/g, function($$, $1, $2){
-    return $2.toUpperCase();
-});
-
-var toPath = function(a){
-    return '/'+R.replace(/-/g, '/')(a);
-};
-
-var clearN = R.replace(/\n/g, '\\n');
-
-var toString = function(buffer) {
-    return buffer.toString();
-};
-
-var toBuffer = function(string) {
-    return new Buffer(string);
-}
-
-var toVueComponent = R.curry(function(name, string) {
-    // 为单独的 冒号 加上斜杠
-    string = string.replace(/([^\\])(')/g, '$1\\$2');
-    return `var ${name} = Vue.extend({template: '<div>${string}</div>'})`;
-});
-
-var toTitle = function(name) {
-    return name.split('-')[name.split('-').length-1];
-}
-
-var toRoute = function(name) {
-    return `{ "path": "${toPath(name)}", "component": ${toCamelCase(name)} }`
-};
-
-var toMenu = function(name) {
-    return `{ "title": "${toTitle(name)}", "href": "${toPath(name)}" }`
-};
-
-var sortMenuByTitle = function(menu) {
-    return menu.sort(function(a, b){
-        return toTitle(a.title) > toTitle(b.title);
-    });
-}
-
-/**
-[[1,2,3],[1,3,4],[3,4,5]]
-**/
-var parseMenu = function(menu) {
-    var r = [];
-    menu.forEach(item=>{
-        var roop = r;
-        item.forEach((title, index)=>{
-            if(roop.some(node=>node.title===title)) {
-                roop = roop.filter(node=>node.title=title)[0].menu;
-            }else {
-                var children = [];
-                roop.push({
-                    title:title,
-                    menu:children,
-                    href: index===item.length-1?`/${item.join('/')}`:'javascript:;'
-                });
-                roop = children;
-            }
-        })
-    })
-    return r;
-}
-
-var track = function(a) {
-    console.log(a);
-    return a;
-}
+// FIXME: gulp 异步的问题，导致打开浏览的时候gulp还没有执行完成 npm pipe-queue
 
 module.exports = function(root) {
+    // 如果不存在config.js 文件，则添加配置文件
+    if(!fs.existsSync(path.resolve(root, 'config.js'))) {
+        gulp.src(path.resolve(__dirname, 'config.js'))
+            .pipe(gulp.dest(`${root}`));
+        var config = require('./config.js');
+    }else {
+        // 配置对象
+        var config = Object.assign({}, require('./config.js'), require(path.resolve(root, 'config.js')));
+    }
+
+
+    var renderer = new marked.Renderer();
+
+    const codeRender = renderer.code;
+
+    renderer.code = function (code, lang) {
+        // 加入 vue-example
+        if(/^:::example-vue/.test(code)) {
+            var title = code.replace(/^:::example-vue (\S*) (.*)(.|\n)*/, '$1');
+            var desc = code.replace(/^:::example-vue (\S*) (.*)(.|\n)*/, '$2');
+            desc = marked(desc);
+            desc = encodeURI(desc);
+            code = code.replace(/^:::example-vue(.*)\n/, '');
+            var rawCode = code;
+            rawCode = encodeURI(rawCode);
+            code = codeRender.call(this, code, 'html');
+            code = code.replace(/^<pre>/, '<pre v-pre>');
+            code = `<tw-example code="${rawCode}" title="${title}" desc="${desc}">${code}</tw-example>`
+            return code;
+        }
+        code = codeRender.call(this, code, lang);
+        code = code.replace(/^<pre>/, '<pre v-pre>');
+        return code;
+    }
+
+    marked.setOptions({
+      highlight: function (code) {
+          code = require('highlight.js').highlightAuto(code).value;
+          code = code.replace(/'/g, '\\\'');
+          return code;
+      },
+      renderer: renderer
+    });
+
+    var toCamelCase = R.replace(/(-(\w|[\u4e00-\u9fa5]))/g, function($$, $1, $2){
+        return $2.toUpperCase();
+    });
+
+    var toPath = function(a){
+        return '/'+R.replace(/-/g, '/')(a);
+    };
+
+    var clearN = R.replace(/\n/g, '\\n');
+
+    var toString = function(buffer) {
+        return buffer.toString();
+    };
+
+    var toBuffer = function(string) {
+        return new Buffer(string);
+    }
+
+    var toVueComponent = R.curry(function(name, string) {
+        // 为单独的 冒号 加上斜杠
+        string = string.replace(/([^\\])(')/g, '$1\\$2');
+        return `var ${name} = Vue.extend({template: '<div>${string}</div>'})`;
+    });
+
+    var toTitle = function(name) {
+        return name.split('-')[name.split('-').length-1];
+    }
+
+    var toRoute = function(name) {
+        return `{ "path": "${toPath(name)}", "component": ${toCamelCase(name)} }`
+    };
+
+    var toMenu = function(name) {
+        return `{ "title": "${toTitle(name)}", "href": "${toPath(name)}" }`
+    };
+
+    var sortMenuByTitle = function(menu) {
+        return menu.sort(function(a, b){
+            return toTitle(a.title) > toTitle(b.title);
+        });
+    }
+
+    /**
+    [[1,2,3],[1,3,4],[3,4,5]]
+    **/
+    var parseMenu = function(menu) {
+        var r = [];
+        menu.forEach(item=>{
+            var roop = r;
+            item.forEach((title, index)=>{
+                if(roop.some(node=>node.title===title)) {
+                    roop = roop.filter(node=>node.title=title)[0].menu;
+                }else {
+                    var children = [];
+                    roop.push({
+                        title:title,
+                        menu:children,
+                        href: index===item.length-1?`/${item.join('/')}`:'javascript:;'
+                    });
+                    roop = children;
+                }
+            })
+        })
+        return r;
+    }
+
+    var track = function(a) {
+        console.log(a);
+        return a;
+    }
+
+    // ------------------------------------
+
     // src 注入资源
     gulp.src(path.resolve(__dirname,'resource/**'))
+        .pipe(ejs(config))
         .pipe(gulp.dest(`${root}/.twriter`));
 
     function transform() {
