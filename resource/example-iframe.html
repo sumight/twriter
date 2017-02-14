@@ -4,6 +4,12 @@
         <meta charset="utf-8">
         <title></title>
         <script src="./vue.js" charset="utf-8"></script>
+        <% examples.vue.js.forEach(function(src){ %>
+            <script src="<%= src%>" charset="utf-8"></script>
+        <% }); %>
+        <% examples.vue.css.forEach(function(src){ %>
+            <link rel="stylesheet" href="src">
+        <% }); %>
     </head>
     <body>
         <div id="app">
