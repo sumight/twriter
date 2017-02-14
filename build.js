@@ -11,7 +11,40 @@ const argv = require('yargs').argv;
 const path = require('path');
 const watch = require('gulp-watch');
 
-var toCamelCase = R.replace(/(-(\w))/g, function($$, $1, $2){
+var renderer = new marked.Renderer();
+
+const codeRender = renderer.code;
+
+renderer.code = function (code, lang) {
+    // 加入 vue-example
+    if(/^:::example-vue/.test(code)) {
+        var title = code.replace(/^:::example-vue (\S*) (.*)(.|\n)*/, '$1');
+        var desc = code.replace(/^:::example-vue (\S*) (.*)(.|\n)*/, '$2');
+        desc = marked(desc);
+        desc = encodeURI(desc);
+        code = code.replace(/^:::example-vue(.*)\n/, '');
+        var rawCode = code;
+        rawCode = encodeURI(rawCode);
+        code = codeRender.call(this, code, 'html');
+        code = code.replace(/^<pre>/, '<pre v-pre>');
+        code = `<tw-example code="${rawCode}" title="${title}" desc="${desc}">${code}</tw-example>`
+        return code;
+    }
+    code = codeRender.call(this, code, lang);
+    code = code.replace(/^<pre>/, '<pre v-pre>');
+    return code;
+}
+
+marked.setOptions({
+  highlight: function (code) {
+      code = require('highlight.js').highlightAuto(code).value;
+      code = code.replace(/'/g, '\\\'');
+      return code;
+  },
+  renderer: renderer
+});
+
+var toCamelCase = R.replace(/(-(\w|[\u4e00-\u9fa5]))/g, function($$, $1, $2){
     return $2.toUpperCase();
 });
 
@@ -19,7 +52,7 @@ var toPath = function(a){
     return '/'+R.replace(/-/g, '/')(a);
 };
 
-var clearN = R.replace(/\n/g, '');
+var clearN = R.replace(/\n/g, '\\n');
 
 var toString = function(buffer) {
     return buffer.toString();
@@ -30,6 +63,8 @@ var toBuffer = function(string) {
 }
 
 var toVueComponent = R.curry(function(name, string) {
+    // 为单独的 冒号 加上斜杠
+    string = string.replace(/([^\\])(')/g, '$1\\$2');
     return `var ${name} = Vue.extend({template: '<div>${string}</div>'})`;
 });
 
@@ -132,7 +167,6 @@ module.exports = function(root) {
     };
     transform();
 
-    console.log('build start');
     watch(`${root}/*.md`, function(){
         transform();
         console.log('build change');

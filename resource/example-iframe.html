@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <script src="./vue.js" charset="utf-8"></script>
+    </head>
+    <body>
+        <div id="app">
+            <component v-bind:is="currentView">
+                  <!-- component changes when vm.currentView changes! -->
+            </component>
+        </div>
+        <script charset="utf-8">
+            // 在例子中提取 template
+            function exampleToTemplate(example) {
+                var reg = /<template.*>((.|\n)*)<\/template>(.|\n)*/;
+                if(!reg.test(example)) {
+                    return ' ';
+                }else {
+                    return example.replace(reg, '$1').trim();
+                }
+            }
+            // 在例子中提取 component
+            function exampleToComponent(example) {
+                var reg = /(.|\n)*<script.*>((.|\n)*)<\/script>(.|\n)*/;
+                if(!reg.test(example)) {
+                    return '{}';
+                }else {
+                    return example.replace(reg, '$2').replace('export default','').trim();
+                }
+            }
+            function init(example) {
+                new Vue({
+                    el: '#app',
+                    data: {
+                        currentView: {
+                            template: '<h3>example not found</h3>'
+                        }
+                    },
+                    created: function() {
+                        if(example) {
+                            var template = exampleToTemplate(example);
+                            var component = exampleToComponent(example);
+                            try{
+                                eval('var component = '+component);
+                            }catch(e){
+                                console.log('例子有语法错误');
+                                component = {template: '<p>例子有语法错误</p>'}
+                            }
+                            component.template = template;
+                            this.currentView = component;
+                        }
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

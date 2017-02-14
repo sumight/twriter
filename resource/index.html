@@ -1,67 +1,72 @@
+<!-- TODO: 自动从git上拉取 -->
+<!-- TODO: 版本控制 -->
+<!-- TODO: example iframe 高度自适应 ✅ -->
+<!-- TODO: example title 和 desc 实现 ✅-->
+<!-- TODO: 通用 example 实现 -->
+<!-- TODO: 通用 example 的 资源引用 -->
+<!-- TODO: 文档 title -->
+<!-- TODO: 文档 封面 -->
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <title>文档</title>
-        <link rel="stylesheet" href="/style.css">
+        <link rel="stylesheet" href="./normal.css">
+        <link rel="stylesheet" href="./style.css">
+        <link rel="stylesheet" href="./highlight.css">
     </head>
     <body>
-        <div id="app" class="page">
-            <div class="page__left">
-                <div class="banner">
-                    <div class="banenr__text">
-                        SAILFISH
-                    </div>
-                </div>
-                <!-- <div class="menu">
-                    <div class="menu__item">
-                        <a href="javascript:;" class="menu__text menu__text--unclick">目录1</a>
-                        <div class="menu">
-                            <div class="menu__item">
-                                <a href="#" class="menu__text">目录1</a>
-                            </div>
-                            <div class="menu__group">group1</div>
-                            <div class="menu__item">
-                                <a href="#" class="menu__text">目录1</a>
-                            </div>
-                            <div class="menu__item">
-                                <a href="#" class="menu__text">目录1</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="menu__item">
-                        <a href="#" class="menu__text">目录1</a>
-                    </div>
-                    <div class="menu__item">
-                        <a href="#" class="menu__text">目录1</a>
-                    </div>
-                </div> -->
-
-                <div class="menu">
-                    <div class="menu__item" v-for="item in menu">
-                        <a href="javascript:;" class="menu__text" v-if="item.href==='javascript:;'">{{item.title}}</a>
-                        <router-link v-else :to="item.href" class="menu__text">{{item.title}}</router-link>
-                        <div class="menu">
-                            <div class="menu__item" v-for="item in item.menu">
-                                <a href="javascript:;" class="menu__text" v-if="item.href==='javascript:;'">{{item.title}}</a>
-                                <router-link v-else :to="item.href" class="menu__text">{{item.title}}</router-link>
-                                <div class="menu">
-                                    <div class="menu__item" v-for="item in item.menu">
-                                        <a href="javascript:;" class="menu__text" v-if="item.href==='javascript:;'">{{item.title}}</a>
-                                        <router-link v-else :to="item.href" class="menu__text">{{item.title}}</router-link>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <div id="app">
+            <div class="page-header">
+                <div class="page-inner">
+                    <div class="page-title">
+                        标题 title
                     </div>
                 </div>
             </div>
-            <div class="page__main">
-                <router-view></router-view>
+            <div class="page-body">
+                <div class="page-inner">
+                    <nav class="menu">
+                        <!-- 第一级菜单 -->
+                        <ul>
+                            <li v-for="item in menu">
+                                <a v-if="item.href==='javascript:;'" href="javascript:;" class="menu-title" @click="changePath(item.href)">{{item.title}}</a>
+                                <router-link v-else :to="item.href" class="menu-title" exact>{{item.title}}</router-link>
+                                <!-- 第二级菜单 -->
+                                <ul v-if="item.menu">
+                                    <li v-for="item in item.menu">
+                                        <a v-if="item.href==='javascript:;'" href="javascript:;" class="menu-title" >{{item.title}}</a>
+                                        <router-link
+                                            v-else
+                                            :to="item.href"
+                                            class="menu-title"
+                                        >{{item.title}}</router-link>
+                                        <!-- 第三级菜单 -->
+                                        <ul v-if="item.menu">
+                                            <li v-for="item in item.menu">
+                                                <a v-if="item.href==='javascript:;'" href="javascript:;" class="menu-title" >{{item.title}}</a>
+                                                <router-link v-else :to="item.href" class="menu-title">{{item.title}}</router-link>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                    <div class="content">
+                        <section class="markdown">
+                            <router-view></router-view>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <div class="page-footer">
+
             </div>
         </div>
         <script src="/vue.js" charset="utf-8"></script>
         <script src="/vue-router.js" charset="utf-8"></script>
+        <script src="/example.js" charset="utf-8"></script>
         <script src="/pages.js" charset="utf-8"></script>
         <script src="/routes.js" charset="utf-8"></script>
         <script src="/menu.js" charset="utf-8"></script>
@@ -69,8 +74,10 @@
             // vue router
             const router = new VueRouter({
                 routes, // （缩写）相当于 routes: routes
-                mode: 'history'
-            })
+                // mode: 'history'
+                linkActiveClass: 'menu-title--active',
+            });
+
             const app = new Vue({
                 router,
                 data: {
