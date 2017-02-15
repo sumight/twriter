@@ -41,8 +41,9 @@ Vue.component('tw-example' ,{
             }.bind(this),200);
         },
         resizeIframe: function() {
-            var $html = this.$iframe.contentWindow.document.body.parentElement;
-            this.$iframe.style.height = $html.offsetHeight+'px';
+            var $document = this.$iframe.contentWindow && this.$iframe.contentWindow.document || this.$iframe.contentDocument;
+            var height = Math.max($document.body.scrollHeight, $document.documentElement.scrollHeight);
+            this.$iframe.style.height = height+'px';
         }
     }
 })

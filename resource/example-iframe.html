@@ -3,12 +3,8 @@
     <head>
         <meta charset="utf-8">
         <title></title>
-        <script src="./vue.js" charset="utf-8"></script>
-        <% examples.vue.js.forEach(function(src){ %>
-            <script src="<%= src%>" charset="utf-8"></script>
-        <% }); %>
         <% examples.vue.css.forEach(function(src){ %>
-            <link rel="stylesheet" href="src">
+            <link rel="stylesheet" href="<%= src%>">
         <% }); %>
     </head>
     <body>
@@ -17,6 +13,10 @@
                   <!-- component changes when vm.currentView changes! -->
             </component>
         </div>
+        <script src="./vue.js" charset="utf-8"></script>
+        <% examples.vue.js.forEach(function(src){ %>
+            <script src="<%= src%>" charset="utf-8"></script>
+        <% }); %>
         <script charset="utf-8">
             // 在例子中提取 template
             function exampleToTemplate(example) {

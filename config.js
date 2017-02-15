@@ -9,6 +9,8 @@ module.exports = {
             js: [],
             // css 资源
             css: [],
+            // body 上的类名
+            bodyClass: []
         }
     }
 }
