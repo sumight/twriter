@@ -5,8 +5,7 @@ Vue.component('tw-example' ,{
             <div class="tw-example__playground">
                 <iframe src="./example-iframe.html" class="tw-example__iframe"></iframe>
             </div>
-            <div class="tw-example__title">{{title}}</div>
-            <div class="tw-example__desc" v-html="descDecoded"></div>
+            <div class="tw-example__title">CODE</div>
             <div class="tw-example__code">
                 <slot></slot>
             </div>
@@ -42,6 +41,7 @@ Vue.component('tw-example' ,{
         },
         resizeIframe: function() {
             var $document = this.$iframe.contentWindow && this.$iframe.contentWindow.document || this.$iframe.contentDocument;
+            if(!$document) return;
             var height = Math.max($document.body.scrollHeight, $document.documentElement.scrollHeight);
             this.$iframe.style.height = height+'px';
         }

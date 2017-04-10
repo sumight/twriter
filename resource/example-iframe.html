@@ -7,13 +7,12 @@
             <link rel="stylesheet" href="<%= src%>">
         <% }); %>
     </head>
-    <body>
+    <body class="<%= examples.vue.bodyClass.join(' ')%>">
         <div id="app">
             <component v-bind:is="currentView">
                   <!-- component changes when vm.currentView changes! -->
             </component>
         </div>
-        <script src="./vue.js" charset="utf-8"></script>
         <% examples.vue.js.forEach(function(src){ %>
             <script src="<%= src%>" charset="utf-8"></script>
         <% }); %>

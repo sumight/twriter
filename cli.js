@@ -9,15 +9,15 @@ const opn = require('opn');
 // 默认参数
 var defaultArgv = {
     root: process.env.PWD,
-    port: '8080'
+    port: 8080
 }
 // 用户参数
 customerArgv = Object.assign(defaultArgv, argv);
 
-build(customerArgv.root);
-ystatic({
-    port: customerArgv.port,
-    notfound: 'index.html',
-    root: path.resolve(customerArgv.root, '.twriter')
-});
-opn(`http://localhost:${customerArgv.port}`);
+build(customerArgv);
+// ystatic({
+//     port: customerArgv.port,
+//     notfound: 'index.html',
+//     root: path.resolve(customerArgv.root, '.twriter')
+// });
+// opn(`http://localhost:${customerArgv.port}`);
